@@ -338,10 +338,13 @@
   </div>
 
   <!-- Add Source Modal -->
-  <div class="modal" [class.show]="showAddSourceModal" *ngIf="showAddSourceModal">
+  <div class="modal" [class.show]="showAddSourceModal" *ngIf="showAddSourceModal" (keydown.enter)="addSource()" (keydown.escape)="closeAddSourceModal()">
     <div class="modal-content add-source-modal">
       <div class="modal-header">
-        <h3 class="modal-title">Add Data Source</h3>
+        <div class="modal-title-section">
+          <h3 class="modal-title">Add Data Source</h3>
+          <div class="modal-hint">Press Enter to save • Esc to cancel</div>
+        </div>
         <button class="modal-close" (click)="closeAddSourceModal()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -419,19 +422,78 @@
                  (dragover)="onDragOver($event)"
                  (dragleave)="onDragLeave($event)"
                  (drop)="onDrop($event)"
-                 [class.dragover]="isDragOver">
+                 [class.dragover]="isDragOver"
+                 [class.has-files]="selectedFiles.length > 0">
               <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7,10 12,15 17,10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
-              <h4 class="upload-text">Drop files here or click to upload</h4>
+              <h4 class="upload-text">
+                {{ selectedFiles.length > 0 ? (selectedFiles.length + ' file(s) selected') : 'Drop files here or click to upload' }}
+              </h4>
               <p class="upload-subtext">
                 {{ selectedSourceType === 'document' ? 'Support for PDF, Word, Excel, images' : 'Support for MP4, MP3, WAV, and other media files' }}
               </p>
               <input #fileInput type="file" class="file-input" multiple 
                      [accept]="selectedSourceType === 'document' ? '.pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png' : '.mp4,.mp3,.wav,.avi,.mov,.m4a'"
                      (change)="onFileSelected($event)">
+            </div>
+            
+            <!-- Selected Files List -->
+            <div *ngIf="selectedFiles.length > 0" class="selected-files-list">
+              <h5 class="files-title">Selected Files:</h5>
+              <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
+                <div class="file-info">
+                  <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14,2 14,8 20,8"></polyline>
+                  </svg>
+                  <div class="file-details">
+                    <span class="file-name">{{ file.name }}</span>
+                    <span class="file-size">{{ formatFileSize(file.size) }}</span>
+                  </div>
+                </div>
+                <button class="remove-file-btn" (click)="removeFile(i)" [disabled]="uploadStatus === 'uploading'">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M18 6L6 18M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Upload Progress -->
+            <div *ngIf="uploadStatus === 'uploading'" class="upload-progress">
+              <div class="progress-header">
+                <svg class="progress-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7,10 12,15 17,10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span class="progress-text">{{ uploadMessage }}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+              </div>
+              <div class="progress-percentage">{{ uploadProgress }}%</div>
+            </div>
+            
+            <!-- Upload Status Messages -->
+            <div *ngIf="uploadStatus === 'success'" class="upload-status success">
+              <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22,4 12,14.01 9,11.01"></polyline>
+              </svg>
+              <span class="status-text">{{ uploadMessage }}</span>
+            </div>
+            
+            <div *ngIf="uploadStatus === 'error'" class="upload-status error">
+              <svg class="status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+              </svg>
+              <span class="status-text">{{ uploadMessage }}</span>
             </div>
           </div>
 
@@ -445,8 +507,10 @@
                 class="form-input" 
                 [(ngModel)]="newSourceUrl"
                 placeholder="https://example.com or https://youtube.com/watch?v=..."
-                (input)="validateUrl()">
+                (input)="validateUrl()"
+                (keydown.enter)="addSource()">
               <div class="form-error" *ngIf="urlError">{{ urlError }}</div>
+              <div class="keyboard-hint" *ngIf="!urlError">Press Enter to add source</div>
             </div>
             <div class="form-group">
               <label class="form-label" for="sourceName">Source Name (Optional)</label>
@@ -457,23 +521,41 @@
                 [(ngModel)]="newSourceName"
                 placeholder="Enter a custom name for this source">
             </div>
+            
+            <!-- URL Preview -->
+            <div *ngIf="newSourceUrl && !urlError" class="url-preview">
+              <div class="preview-header">
+                <svg class="preview-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span class="preview-text">Ready to add URL source</span>
+              </div>
+              <div class="preview-content">
+                <div class="preview-url">{{ newSourceUrl }}</div>
+                <div class="preview-name" *ngIf="newSourceName">{{ newSourceName }}</div>
+              </div>
+            </div>
+            
           </div>
 
           <!-- Text Input -->
           <div *ngIf="selectedSourceType === 'text'" class="text-input-section">
-        <div class="form-group">
+            <div class="form-group">
               <label class="form-label" for="sourceText">Text Content</label>
-          <textarea 
+              <textarea 
                 id="sourceText"
-            class="form-input form-textarea" 
+                class="form-input form-textarea" 
                 [(ngModel)]="newSourceText"
                 placeholder="Paste your text content here..."
                 rows="8"
-                (input)="updateTextCount()">
-          </textarea>
+                (input)="updateTextCount()"
+                (keydown.ctrl.enter)="addSource()">
+              </textarea>
               <div class="text-count">
                 <span class="char-count">{{ newSourceText.length }} characters</span>
                 <span class="word-count">{{ getWordCount() }} words</span>
+                <span class="keyboard-hint">Press Ctrl+Enter to add source</span>
               </div>
             </div>
             <div class="form-group">
@@ -485,18 +567,25 @@
                 [(ngModel)]="newSourceName"
                 placeholder="Enter a custom name for this source">
             </div>
+            
+            
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline" (click)="closeAddSourceModal()">Cancel</button>
-        <button class="btn btn-primary" 
+        <button class="btn btn-outline" (click)="closeAddSourceModal()">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          Cancel
+        </button>
+        <button class="btn btn-primary modal-save-btn" 
                 [disabled]="!canAddSource() || isUploading" 
                 (click)="addSource()">
           <div class="loading-spinner" *ngIf="isUploading"></div>
           <svg *ngIf="!isUploading" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <path d="M12 5v14M5 12h14"></path>
           </svg>
           {{ isUploading ? 'Adding Source...' : 'Add Source' }}
         </button>

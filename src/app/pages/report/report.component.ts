@@ -64,6 +64,8 @@ interface Report {
             class="stage-btn" 
             [class.active]="currentStage === 1"
             [class.completed]="currentStage > 1"
+            [class.disabled]="!canNavigateToStage(1)"
+            [disabled]="!canNavigateToStage(1)"
             (click)="navigateToStage(1)"
           >
             <div class="stage-number">1</div>
@@ -73,6 +75,8 @@ interface Report {
             class="stage-btn" 
             [class.active]="currentStage === 2"
             [class.completed]="currentStage > 2"
+            [class.disabled]="!canNavigateToStage(2)"
+            [disabled]="!canNavigateToStage(2)"
             (click)="navigateToStage(2)"
           >
             <div class="stage-number">2</div>
@@ -248,6 +252,20 @@ interface Report {
       font-weight: bold;
     }
 
+    .stage-btn.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .stage-btn.disabled:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.3);
+      transform: none;
+    }
+
     .stage-number {
       font-size: 24px;
       font-weight: 700;
@@ -299,6 +317,13 @@ export class ReportComponent implements OnInit {
   reportId: string = '';
   report: Report | null = null;
   currentStage: number = 0;
+  
+  // Stage completion tracking
+  stageCompletionStatus = {
+    stage0: false,
+    stage1: false,
+    stage2: false
+  };
 
   constructor(
     private router: Router,
@@ -341,13 +366,39 @@ export class ReportComponent implements OnInit {
     this.router.navigate(['/reports']);
   }
 
+  canNavigateToStage(stage: number): boolean {
+    switch (stage) {
+      case 0:
+        return true; // Stage 0 is always accessible
+      case 1:
+        return this.stageCompletionStatus.stage0; // Stage 1 requires Stage 0 completion
+      case 2:
+        return this.stageCompletionStatus.stage0 && this.stageCompletionStatus.stage1; // Stage 2 requires both Stage 0 and 1 completion
+      default:
+        return false;
+    }
+  }
+
   navigateToStage(stage: number): void {
+    if (!this.canNavigateToStage(stage)) {
+      return; // Don't navigate if stage is not accessible
+    }
     this.currentStage = stage;
     // Update report stage in backend
     this.updateReportStage(stage);
   }
 
   onStageComplete(stage: number): void {
+    // Mark the completed stage as done
+    if (stage === 0) {
+      this.stageCompletionStatus.stage0 = true;
+    } else if (stage === 1) {
+      this.stageCompletionStatus.stage1 = true;
+    } else if (stage === 2) {
+      this.stageCompletionStatus.stage2 = true;
+    }
+    
+    // Move to next stage if not the last stage
     if (stage < 2) {
       this.currentStage = stage + 1;
       this.updateReportStage(this.currentStage);

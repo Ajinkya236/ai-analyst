@@ -55,6 +55,9 @@ export class Stage0Component implements OnInit, OnDestroy {
   selectedFiles: File[] = [];
   isDragOver = false;
   isUploading = false;
+  uploadProgress = 0;
+  uploadStatus: 'idle' | 'uploading' | 'success' | 'error' = 'idle';
+  uploadMessage = '';
 
   // Deep Research properties
   deepResearchData: DeepResearchData = {
@@ -122,6 +125,7 @@ export class Stage0Component implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.startStatusPolling();
+    this.updateIngestionStatus();
     // Auto-open Add Source modal if no sources exist
     if (this.sources.length === 0) {
       this.openAddSourceModal();
@@ -415,12 +419,16 @@ export class Stage0Component implements OnInit, OnDestroy {
       source.isSelected && source.ingestionStatus === 'completed'
     ).length;
     
-    // Update stage progression logic
-    this.canProceedToNext = this.ingestedSourcesCount > 0;
-    this.canProceedToStage1 = this.ingestedSourcesCount > 0;
-    this.canProceedToStage2 = this.ingestedSourcesCount > 0; // Will be updated based on Stage 1 completion
+    // Count selected sources (regardless of ingestion status)
+    const selectedSourcesCount = this.sources.filter(source => source.isSelected).length;
     
-    console.log(`Ingestion status updated: ${this.ingestedSourcesCount} sources ingested`);
+    // Update stage progression logic - only enable Next button when at least one source is selected
+    this.canProceedToNext = selectedSourcesCount > 0;
+    // Stage 1 and Stage 2 buttons should always be disabled in Stage 0
+    this.canProceedToStage1 = false;
+    this.canProceedToStage2 = false;
+    
+    console.log(`Ingestion status updated: ${this.ingestedSourcesCount} sources ingested, ${selectedSourcesCount} sources selected`);
   }
 
   onSourceSelectionChange(source: DataSource): void {
@@ -453,6 +461,7 @@ export class Stage0Component implements OnInit, OnDestroy {
       if (index > -1) {
         this.sources.splice(index, 1);
         this.updateSelectAllState();
+        this.updateIngestionStatus();
       }
     }
     this.closeDeleteModal();
@@ -569,20 +578,64 @@ export class Stage0Component implements OnInit, OnDestroy {
   }
 
   async addFileSources(): Promise<void> {
-    for (const file of this.selectedFiles) {
-      const source: DataSource = {
-        id: this.generateId(),
-        name: this.newSourceName || file.name,
-        type: this.selectedSourceType === 'document' ? 'file' : 'file',
-        description: `${file.type} file - ${this.formatFileSize(file.size)}`,
-        size: file.size,
-        uploadedAt: new Date(),
-        isSelected: true,
-        file_path: file.name,
-        ingestionStatus: 'loading'
-      };
-      this.sources.push(source);
-      await this.triggerAutoIngestion(source);
+    this.uploadStatus = 'uploading';
+    this.uploadProgress = 0;
+    this.uploadMessage = 'Uploading files...';
+    
+    try {
+      const totalFiles = this.selectedFiles.length;
+      
+      for (let i = 0; i < this.selectedFiles.length; i++) {
+        const file = this.selectedFiles[i];
+        
+        // Update progress
+        this.uploadProgress = Math.round(((i + 1) / totalFiles) * 100);
+        this.uploadMessage = `Uploading ${file.name}...`;
+        
+        const source: DataSource = {
+          id: this.generateId(),
+          name: this.newSourceName || file.name,
+          type: this.selectedSourceType === 'document' ? 'file' : 'file',
+          description: `${file.type} file - ${this.formatFileSize(file.size)}`,
+          size: file.size,
+          uploadedAt: new Date(),
+          isSelected: true,
+          file_path: file.name,
+          ingestionStatus: 'loading'
+        };
+        
+        this.sources.push(source);
+        await this.triggerAutoIngestion(source);
+        
+        // Small delay to show progress
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      this.updateIngestionStatus();
+      
+      // Success feedback
+      this.uploadStatus = 'success';
+      this.uploadMessage = `Successfully uploaded ${totalFiles} file(s)!`;
+      
+      // Clear selected files after successful upload
+      setTimeout(() => {
+        this.selectedFiles = [];
+        this.uploadStatus = 'idle';
+        this.uploadMessage = '';
+        this.uploadProgress = 0;
+      }, 3000);
+      
+    } catch (error) {
+      this.uploadStatus = 'error';
+      this.uploadMessage = 'Upload failed. Please try again.';
+      console.error('Upload error:', error);
+      
+      // Reset after error
+      setTimeout(() => {
+        this.uploadStatus = 'idle';
+        this.uploadMessage = '';
+        this.uploadProgress = 0;
+      }, 5000);
     }
   }
 
@@ -608,16 +661,18 @@ export class Stage0Component implements OnInit, OnDestroy {
         session_id: this.reportId
       }).toPromise();
       
+      console.log('URL extraction response:', response);
+      
       if (response && (response as any).status === 'success') {
         const result = (response as any).result;
-        if (result && result.success) {
-          source.content = result.extracted_data;
+        if (result && result.results && result.results.success) {
+          source.content = result.results.extracted_data;
           source.description = `Extracted data from ${this.extractDomainFromUrl(this.newSourceUrl)}`;
           source.ingestionStatus = 'completed';
           await this.triggerAutoIngestion(source);
         } else {
           source.ingestionStatus = 'failed';
-          source.ingestionError = result?.error || 'Failed to extract data from URL';
+          source.ingestionError = result?.results?.error || 'Failed to extract data from URL';
           source.isSelected = false;
         }
       } else {
@@ -631,6 +686,7 @@ export class Stage0Component implements OnInit, OnDestroy {
       source.ingestionError = 'Failed to extract data from URL';
       source.isSelected = false;
     }
+    this.updateIngestionStatus();
   }
 
   async addTextSource(): Promise<void> {
@@ -647,6 +703,7 @@ export class Stage0Component implements OnInit, OnDestroy {
     };
     this.sources.push(source);
     await this.triggerAutoIngestion(source);
+    this.updateIngestionStatus();
   }
 
   extractDomainFromUrl(url: string): string {
@@ -857,6 +914,10 @@ export class Stage0Component implements OnInit, OnDestroy {
     if (files) {
       this.selectedFiles = Array.from(files);
     }
+  }
+
+  removeFile(index: number): void {
+    this.selectedFiles.splice(index, 1);
   }
 
   // Utility methods

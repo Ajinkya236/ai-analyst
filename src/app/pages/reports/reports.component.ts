@@ -266,7 +266,13 @@ interface Report {
                     [(ngModel)]="newReport.founderPhone.number"
                     placeholder="Phone number"
                     class="phone-number"
+                    maxlength="10"
+                    pattern="[0-9]{10}"
+                    (input)="formatPhoneNumber($event)"
                   >
+                  <div class="phone-counter">
+                    {{ getPhoneDigitCount() }}/10 digits
+                  </div>
                 </div>
               </div>
             </div>
@@ -772,6 +778,30 @@ interface Report {
 
     .phone-number {
       flex: 1;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      color: white;
+      font-size: 16px;
+    }
+
+    .phone-number::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .phone-number:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    }
+
+    .phone-counter {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 4px;
+      text-align: right;
     }
 
     .search-results {
@@ -1141,10 +1171,11 @@ export class ReportsComponent implements OnInit {
     if (this.currentStep === 1) {
       return !!this.newReport.companyName.trim();
     } else if (this.currentStep === 2) {
+      const phoneNumber = this.newReport.founderPhone.number.replace(/\D/g, '');
       return !!(
         this.newReport.founderName.trim() &&
         this.newReport.founderEmail.trim() &&
-        this.newReport.founderPhone.number.trim()
+        phoneNumber.length === 10
       );
     }
     return false;
@@ -1174,6 +1205,26 @@ export class ReportsComponent implements OnInit {
     this.filteredReports = [...this.reports];
     this.closeCreateModal();
     this.router.navigate(['/report', newReport.id]);
+  }
+
+  formatPhoneNumber(event: any): void {
+    let value = event.target.value;
+    
+    // Remove all non-digit characters
+    value = value.replace(/\D/g, '');
+    
+    // Limit to 10 digits
+    if (value.length > 10) {
+      value = value.substring(0, 10);
+    }
+    
+    // Update the input value
+    event.target.value = value;
+    this.newReport.founderPhone.number = value;
+  }
+
+  getPhoneDigitCount(): number {
+    return this.newReport.founderPhone.number.replace(/\D/g, '').length;
   }
 
   formatDate(date: Date): string {

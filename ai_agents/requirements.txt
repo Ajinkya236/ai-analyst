@@ -3,7 +3,7 @@ langchain==0.3.7
 langchain-openai==0.2.8
 langchain-community==0.3.7
 langchain-core==0.3.21
-openai==1.51.2
+openai>=1.54.0
 pydantic==2.9.2
 python-dotenv==1.0.1
 fastapi==0.115.6
@@ -27,7 +27,7 @@ twilio==9.2.3
 sendgrid==6.11.0
 redis==5.0.7
 celery==5.4.0
-sqlalchemy==2.0.36
+sqlalchemy<2.0.36,>=1.4
 psycopg2-binary==2.9.9
 chromadb==0.5.3
 sentence-transformers==3.1.1

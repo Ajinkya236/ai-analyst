@@ -49,11 +49,11 @@ import { HttpClient } from '@angular/common/http';
               </svg>
               Previous
             </button>
-            <button class="btn btn-primary" (click)="generateNewMemo()" [disabled]="isGenerating">
+            <button class="btn btn-primary" (click)="generateNewMemo()" [disabled]="isGenerating || !canGenerateMemo">
               <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
               </svg>
-              {{ isGenerating ? 'Generating...' : 'Generate New Memo' }}
+              {{ isGenerating ? 'Generating...' : (!canGenerateMemo ? 'Add Data Sources First' : 'Generate New Memo') }}
             </button>
             <button class="btn btn-success" (click)="proceedToNext()" [disabled]="generatedDecks.length === 0">
               <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -206,8 +206,8 @@ import { HttpClient } from '@angular/common/http';
               </div>
               <h3 class="empty-title">No Memos Generated Yet</h3>
               <p class="empty-description">Generate your first AI-powered investment memo from your collected data sources.</p>
-              <button class="btn btn-primary" (click)="generateNewMemo()">
-                Generate First Memo
+              <button class="btn btn-primary" (click)="generateNewMemo()" [disabled]="!canGenerateMemo">
+                {{ !canGenerateMemo ? 'Add Data Sources First' : 'Generate First Memo' }}
               </button>
             </div>
           </ng-template>
@@ -969,6 +969,9 @@ export class Stage1Component implements OnInit {
   showPreviewModal = false;
   previewMemo: any = null;
   
+  // Button state management
+  canGenerateMemo = false;
+  
   generatingAgents = [
     { name: 'Data Ingestion Agent', progress: 100 },
     { name: 'Founder Analysis Agent', progress: 75 },
@@ -1033,9 +1036,28 @@ export class Stage1Component implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+    // Check if data sources are available before enabling memo generation
+    this.checkDataSourcesAvailability();
     // Start automatic generation on component init
     this.startAutomaticGeneration();
     this.loadGeneratedMemos();
+  }
+
+  checkDataSourcesAvailability(): void {
+    // Check if there are any data sources available from Stage 0
+    // This would typically come from a service or API call
+    // For now, we'll simulate checking if sources exist
+    this.http.get<any[]>(`${this.aiAgentsApiUrl}/data-sources/${this.reportId}`).subscribe({
+      next: (sources) => {
+        this.canGenerateMemo = sources && sources.length > 0;
+        console.log(`Data sources check: ${sources?.length || 0} sources found. Can generate memo: ${this.canGenerateMemo}`);
+      },
+      error: (error) => {
+        console.error('Error checking data sources:', error);
+        // If API fails, assume no sources available
+        this.canGenerateMemo = false;
+      }
+    });
   }
 
 

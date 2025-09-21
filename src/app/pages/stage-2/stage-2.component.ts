@@ -27,11 +27,11 @@ import { FormsModule } from '@angular/forms';
             </svg>
             Edit Preferences
           </button>
-          <button class="btn btn-primary" (click)="regenerateMemo()" [disabled]="isRegenerating">
+          <button class="btn btn-primary" (click)="regenerateMemo()" [disabled]="isRegenerating || !canRegenerateMemo">
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
             </svg>
-            {{ isRegenerating ? 'Regenerating...' : 'Regenerate Memo' }}
+            {{ isRegenerating ? 'Regenerating...' : (!canRegenerateMemo ? 'Complete Stage 1 First' : 'Regenerate Memo') }}
           </button>
         </div>
       </div>
@@ -941,6 +941,9 @@ export class Stage2Component implements OnInit {
   viewMode: 'detailed' | 'summary' = 'detailed';
   showPreferencesModal = false;
   
+  // Button state management
+  canRegenerateMemo = false;
+  
   sectionWeights = [
     { name: 'Founder Profile', weight: 25 },
     { name: 'Market Analysis', weight: 20 },
@@ -1057,8 +1060,31 @@ export class Stage2Component implements OnInit {
   };
 
   ngOnInit(): void {
+    // Check if Stage 1 is completed before enabling memo regeneration
+    this.checkStage1Completion();
     // Check if this is the first time accessing stage 2 for this report
     this.checkFirstTimeAccess();
+  }
+
+  private checkStage1Completion(): void {
+    // Check if Stage 1 has generated any memos
+    // This would typically come from a service or API call
+    // For now, we'll simulate checking if Stage 1 memos exist
+    const stage1Memos = localStorage.getItem(`stage1-memos-${this.reportId}`);
+    if (stage1Memos) {
+      try {
+        const memos = JSON.parse(stage1Memos);
+        this.canRegenerateMemo = memos && memos.length > 0;
+      } catch (error) {
+        console.error('Error parsing Stage 1 memos:', error);
+        this.canRegenerateMemo = false;
+      }
+    } else {
+      // If no Stage 1 memos found, check if we have any generated memos in current data
+      this.canRegenerateMemo = !!(this.currentMemo && this.currentMemo.id);
+    }
+    
+    console.log(`Stage 1 completion check: Can regenerate memo: ${this.canRegenerateMemo}`);
   }
 
   private checkFirstTimeAccess(): void {
