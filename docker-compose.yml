@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ai-analyst-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ai_analyst
+      MYSQL_USER: ai_analyst
+      MYSQL_PASSWORD: ai_analyst123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: ai-analyst-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ai-analyst-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_USERNAME=ai_analyst
+      - DB_PASSWORD=ai_analyst123
+      - REDIS_HOST=redis
+      - AI_AGENTS_BASE_URL=http://ai-agents:8001
+    depends_on:
+      - mysql
+      - redis
+    restart: unless-stopped
+
+  ai-agents:
+    build:
+      context: ./ai_agents
+      dockerfile: Dockerfile
+    container_name: ai-analyst-ai-agents
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./ai_models:/app/models
+    environment:
+      - PYTHONPATH=/app
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: ai-analyst-frontend
+    ports:
+      - "4200:80"
+    environment:
+      - API_BASE_URL=http://localhost:8080/api
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:

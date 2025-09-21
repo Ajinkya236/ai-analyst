@@ -1,0 +1,49 @@
+---
+description:
+1. Frontend Stack
+
+Framework: Angular
+
+Languages: HTML, CSS, TypeScript
+
+UI/UX: Modern responsive components, consistent design system (blue/white/off-white palette)
+
+2. Backend Stack
+
+Primary Language: Java
+
+Framework: Spring Boot (for REST APIs, microservices, dependency injection)
+
+Database: MySQL (relational structured data)
+
+Optional Backend Components:
+
+Redis / Memcached: Caching for AI outputs, memo versions, and session data
+
+Kafka / RabbitMQ: Event-driven messaging for AI agent triggers and ingestion workflows
+
+Elasticsearch: For fast full-text search across ingested sources and memo content
+
+MinIO / S3: For storing uploaded documents, videos, and AI-generated memos
+
+3. AI Stack
+
+Orchestration & Workflow: LangGraph (for multi-agent orchestration and pipelines)
+
+Models: Open-source LLMs for NLP tasks (GPT, LLaMA, MPT, etc.)
+
+Processing: MCP (Multi-Channel Processing) for structured/unstructured data ingestion
+
+Hardware: Local GPU cluster for model inference, fine-tuning, and embeddings
+
+Additional AI tools:
+
+RAG (Retrieval-Augmented Generation): For memo summarization and Q&A
+
+Vector DB (e.g., FAISS, Milvus, Weaviate): For embedding-based search across ingested sources
+
+LangChain or Haystack: Optional for chaining LLM + search + reasoning
+
+globs:
+alwaysApply: true
+---

@@ -1,0 +1,678 @@
+Report/id page:
+4.1.	Show stage wise screens with stages shown on top of the page below top nav menu, but don’t use circular shape, use rectangle shape, these shold act as filter buttons showing the respective stage screen 
+- also show a back button, 
+- below THE STAGes bar on top of page ,  showing the respective stage page 
+
+
+
+
+Stage 0:
+
+Brief :
+
+
+4.2.1.	User Inputs Files, pitch decks, documents (docx, pdf, pptx, video, email threads) shared by founder and company or found elsewhere
+4.2.2.	User inputs website links, YouTube links, large texts.
+4.2.3.	Founder AI Voice chat recording and transcript should be already available:  User triggers or when founder data is captured -> event trigger -> Outbound call to founder phone or alt phone number - adaptive Interactions and questions to get data from founder. 
+4.2.4.	User performs deep search using Deep research agent - Public sources data - one is available and free, second is behind paywalls
+4.2.5.	Founder Behavioural Assessment using an in app adaptive behavioural assessment. Admin can set preferences for required behavioural indicators
+
+
+
+ Data collection stage screen should show :
+- **Trigger**: "Add Source" button, open popup directly for the first time 
+- **Options Available**:
+  - Upload documents (PDF, DOCX, PPT, email threads)
+  - Upload video or audio files
+  - Add YouTube link
+  - Add website link
+  - Paste text (with large limit)
+
+#### 4.2.1 Dynamic Input Process
+- **Step 1**: User chooses source type from options
+- **Step 2**: Same popup dynamically updates to ask for relevant input:
+  - File upload for documents/video/audio
+  - URL input for YouTube/website links
+  - Text input for paste text option
+- **Step 3**: "Add Source" button saves the source
+- **Feedback**: Show proper loading and success animation for list of ingested sources
+
+### 4.3 Sources Section
+- **Checkboxes**: Add checkbox for each added source to select/unselect for defining current context
+- **Select All**: Add select/unselect all checkbox above the sources list
+- also show hyperlinks for each of the sources selected/unselected
+
+### 4.4 Deep Search Button
+•	- **Trigger**: When user clicks Deep Search button
+Input: Startup name already filled, sector, geography, stage, key questions in a pop up, and then enter
+•	Human Role: Analyst specifies what needs to be researched (e.g., "Check competitors, funding history, regulatory risks").
+AI Role: Translate objective into structured search queries across reliable domains.
+ 
+🔹 Step 2: Smart Search & Data Sourcing
+The agent should run multi-layered searches:
+1.	Official & Primary Sources:
+o	Startup website, Crunchbase, PitchBook, AngelList, company registry.
+2.	Financial & Funding Data:
+o	SEC filings, Tracxn, CB Insights, press releases.
+3.	Market & Competitor Intelligence:
+o	Gartner, Statista, industry reports, Google Scholar.
+4.	Sentiment & Social Signals:
+o	LinkedIn, Twitter, Glassdoor (for employee satisfaction), TrustPilot (for customer reviews).
+5.	Regulatory / Compliance:
+o	Government registries, legal filings, patents (USPTO, WIPO).
+✅ AI Role:
+•	Run queries like "Startup Name" AND "funding round"
+•	Cross-validate funding amounts across sources.
+•	Scrape structured and unstructured data.
+ 
+🔹 Step 3: Data Extraction & Structuring
+•	Normalize data into JSON/Tabular format.
+•	Key Fields:
+o	Company Info: Name, website, HQ, founding year.
+o	Founders: Names, LinkedIn, experience, previous exits.
+o	Funding: Rounds, investors, amounts, dates.
+o	Market: TAM, SAM, SOM estimates.
+o	Competition: Direct, indirect, substitutes.
+o	Metrics: Revenue, ARR, churn, CAC, LTV, runway.
+o	Risks: Legal, regulatory, operational.
+o	Signals: Social buzz, Glassdoor score, user reviews.
+ 
+🔹 Step 4: Enrichment & Benchmarking
+•	Compare startup’s metrics against:
+o	Industry averages (growth rates, CAC benchmarks).
+o	Competitor positioning (funding vs. traction).
+•	Use LLM summarization to create:
+o	SWOT (Strengths, Weaknesses, Opportunities, Threats).
+o	Red Flag Report (e.g., missing founder experience, litigation).
+ 
+🔹 Step 5: Quality & Reliability Scoring
+•	Each data point gets a confidence score based on source reliability.
+•	Example:
+o	SEC filing (95% reliable)
+o	Tech blog rumor (40% reliable)
+•	Aggregate into a Research Confidence Score.
+ 
+🔹 Step 6: Output & Delivery
+•	Output Format:
+o	Dashboard view + structured report (JSON, Excel, PDF).
+o	API integration for VC pipeline tools (Affinity, Salesforce).
+•	Sample Output JSON:
+{
+  "startup": "Acme AI",
+  "founders": [
+    {"name": "Jane Doe", "linkedin": "url", "past_exits": 1}
+  ],
+  "funding": [
+    {"round": "Series A", "amount": 15000000, "investors": ["Sequoia", "Accel"], "date": "2023-06-10"}
+  ],
+  "market": {"TAM": "5B", "growth_rate": "18%"},
+  "competition": ["Competitor A", "Competitor B"],
+  "metrics": {"ARR": 2000000, "CAC": 350, "LTV": 1200, "runway": "12 months"},
+  "risks": ["Pending patent litigation", "High churn risk"],
+  "confidence_score": 0.87
+}
+ 
+🔹 Step 7: Human + AI Workflow
+•	AI Agent: Automates searching, structuring, benchmarking.
+•	Associate: Validates raw findings, adds missing insights.
+•	Principal: Reviews AI + associate summary for red flags.
+•	Partner: Uses enriched, validated output for IC (Investment Committee) decision.
+
+
+- **Content**: searches 30 new most relevant website link sources in popup, searching about the company , search text to be analyzed using company name and company metadata 
+Especially blogs, startup review websites, research websites, VC articles, testimonials, company founder statements, 
+-	when
+### 4.5 Source Management
+- **Selection**: Each link has select checkbox with "select all" option
+- **Cherry Picking**: User can select specific links
+- **Action**: "Add Source" button saves selected sources
+- **Feedback**: Show proper loading and success/failure animation for list of ingested sources
+
+- On each added source
+- Clicking "..." opens dropdown with options:
+  - Edit title (to rename source)
+  - Delete (to remove source from sources section)
+
+### 4.6 Founder Voice Button
+
+- Button triggers ai agent voice call to founder 
+- 📝 User Story
+
+As an investor analyst, I want the AI agent to call startup founders, ask structured and adaptive questions, and capture their responses so that I can better understand the founder’s background, motivations, and startup vision without spending manual time on discovery calls.
+
+📖 User Journey (with Embedded Rules & Flows)
+Step 1: Trigger Call
+
+User (Investor/Analyst) selects a startup report in the app.
+
+Rule: If founder phone number is available (via CRM/manual input), AI Agent schedules/initiates a call.
+
+Rule: Call attempt limited to 3 retries if unanswered.
+
+Step 2: Call Introduction
+
+Agent greets politely, introduces itself as “AI Assistant for Investor Evaluation”.
+
+Rule: Must confirm consent: “Is this a good time to answer a few questions about you and your startup?”
+
+If no consent → Agent politely ends call and logs refusal.
+
+If yes consent → Proceed.
+
+Step 3: Founder Verification
+
+Agent asks to verify identity:
+
+“Can you confirm your full name and role in the company?”
+
+Rule: If mismatch → log mismatch, escalate to human analyst.
+
+Step 4: Question Flow (Adaptive)
+
+Agent follows a structured Q&A with branching logic.
+
+Rule: If founder gives vague/incomplete answers, agent politely probes deeper.
+
+Rule: Capture voice-to-text transcript + sentiment + confidence score.
+
+Step 5: Closing
+
+Agent thanks the founder, summarizes what was captured, and confirms details will be shared with investor analysts.
+
+Call ends.
+
+Step 6: Data Storage
+
+Responses stored in structured format under Founder Interaction Report.
+
+Rule: Tag all answers with:
+
+Question ID
+
+Answer Text (transcripted)
+
+Sentiment (positive/neutral/negative)
+
+Confidence score
+
+Call metadata (date/time, duration, success/failure).
+
+🤖 AI Agent Behavior
+
+Tone: Polite, professional, supportive (never confrontational).
+
+Capabilities:
+
+Call scheduling, retries, escalation.
+
+Identity verification.
+
+Real-time transcription + NLP sentiment analysis.
+
+Adaptive questioning (probing deeper if vague).
+
+Must show last call trigger date/time
+
+Confidence scoring and escalation if uncertain.
+
+Boundaries:
+
+Must not offer investment advice.
+
+Must not promise outcomes.
+
+Must log call whether successful or failed.
+
+once data received with survey completed, status will be completed and data will be ingested 
+
+❓ Question Set (Sample)
+Founder Background
+
+Could you tell me about yourself and your professional journey so far?
+
+What inspired you to become a founder?
+
+Startup Vision & Mission
+
+What problem is your startup solving?
+
+Why do you believe your solution is unique?
+
+Market & Product
+
+Who are your target customers?
+
+How are they currently solving this problem today?
+
+Traction & Metrics
+
+Can you share your current traction (customers, revenue, or adoption numbers)?
+
+What key milestones have you achieved in the past 12 months?
+
+Team & Culture
+
+Tell me about your founding team and their strengths.
+
+What kind of culture are you trying to build in your company?
+
+Future Outlook
+
+What are your biggest challenges right now?
+
+Where do you see your startup in the next 3–5 years?
+
+Closing
+
+Is there anything else you’d like investors to know about you or your company?
+
+✅ Acceptance Criteria (AC) in GWT)
+1. Call Initiation
+
+Given a valid founder phone number exists
+
+When the analyst triggers “Call Founder”
+
+Then the AI agent should attempt a call and retry up to 3 times if unanswered.
+
+2. Consent Collection
+
+Given the founder answers the call
+
+When the AI agent introduces itself
+
+Then it must explicitly ask for consent before proceeding with questions.
+
+3. Identity Verification
+
+Given the founder gives their name/role
+
+When it does not match the CRM record
+
+Then the system should log mismatch and escalate to human analyst.
+
+4. Question Flow Execution
+
+Given the founder has consented
+
+When the AI agent asks structured questions
+
+Then all responses should be captured as transcript, tagged with sentiment, confidence score, and metadata.
+
+5. Probing for Clarity
+
+Given the founder’s response is vague or incomplete
+
+When the NLP detects low information density
+
+Then the AI agent should politely ask a follow-up question for clarification.
+
+6. Call Closure
+
+Given the agent completes the question set
+
+When the call ends
+
+Then the agent should thank the founder and confirm that insights will be shared with analysts.
+
+7. Data Storage
+
+Given responses are captured
+
+When the call ends
+
+Then the system should store all answers in structured format (question ID, transcript, sentiment, confidence, metadata).
+
+8. Failure Handling
+
+Given the call fails due to no answer, disconnect, or refusal
+
+When retries are exhausted
+
+Then the system should log failure reason and notify analyst.
+- **Status Icon**: Show pending/completed status icon
+- **Behaviour, show pending icon till user marks it as complete
+- 
+
+### 4.7 Founder Behaviour Test Button
+- Trigger : sends an sms to the founder phone and an email to his email id
+- **Status Icon**: Show pending/completed status icon
+- Must show last call trigger date/time
+- **Behavior**: Once founder receives the link , he views an separate behavioural psychometric assessment page and submits the assessment
+- if assessment data received, status will be completed and data will be ingested 
+Title: Founder Behavioural Psychometric Assessment
+
+As a VC analyst,
+I want to send founders a behavioral psychometric assessment via SMS and email, track its completion status, and automatically ingest the assessment data,
+So that I can evaluate founder behavioral traits efficiently and store structured insights without manual follow-ups.
+
+User Journey with Embedded Rules & Flows
+Step 1: Trigger Assessment
+
+Analyst clicks “Founder Behaviour Test” button.
+
+System Action:
+
+Sends SMS to founder’s phone number.
+
+Sends email to founder’s registered email ID.
+
+Creates pending status icon for the assessment.
+
+Rules:
+
+Only trigger if valid phone/email exists.
+
+Prevent duplicate triggers within 24 hours.
+
+Step 2: Founder Accesses Assessment
+
+Founder receives SMS/email with assessment link.
+
+Founder opens the link → directed to a separate behavioural psychometric assessment page.
+
+Rules:
+
+Link must be secure and unique per founder.
+
+Expiration period configurable (e.g., 7 days).
+
+Page should load in desktop/mobile browsers.
+
+Page shows progress, instructions, and estimated completion time.
+
+Step 3: Founder Completes Assessment
+
+Founder answers structured questions (multiple-choice, Likert scale, situational judgment).
+
+System validates answers for completion.
+
+Rules:
+
+Prevent submission if mandatory questions are unanswered.
+
+Provide option to save progress and resume later.
+
+Data encrypted in transit and at rest.
+
+Step 4: Data Ingestion
+
+On submission, assessment data is sent to the backend ingestion agent.
+
+Agent Behavior:
+
+Parses responses.
+
+Calculates behavioral scores (e.g., leadership, risk-taking, resilience).
+
+Stores structured data under Founder Behavioural Report.
+
+Updates status icon → completed.
+
+Rules:
+
+System must handle delayed submissions (e.g., founder completes after several hours/days).
+
+Show loading splash icon while data ingestion is in progress.
+
+Step 5: Analyst Review
+
+Analyst sees updated status icon in the platform: pending → completed.
+
+Analyst can click to view detailed psychometric results.
+
+Rules:
+
+Only authorized users can access detailed assessment results.
+
+Data should be downloadable in structured formats (JSON, Excel, PDF).
+
+Agent Description
+
+Purpose: Automates sending, tracking, and ingestion of founder behavioral assessments.
+
+Capabilities:
+
+Trigger SMS/email.
+
+Generate secure assessment link.
+
+Validate submissions.
+
+Parse, score, and store assessment data.
+
+Update status icon dynamically.
+
+Boundaries:
+
+Cannot change founder responses.
+
+Cannot send investment advice.
+
+Only handles behavioral assessment workflow.
+
+Behavioural Psychometric Assessment Description
+
+Type: Online, structured assessment page.
+
+Question Types:
+
+Multiple-choice
+
+Likert-scale (1–5, strongly disagree → strongly agree)
+
+Situational judgment scenarios
+
+Scoring:
+
+Each trait scored numerically (0–100).
+
+Traits measured may include: leadership, resilience, risk-taking, collaboration, adaptability.
+
+Submission:
+
+Only complete assessments are ingested.
+
+Partial/incomplete responses are stored as pending.
+
+Acceptance Criteria (AC) in GWT
+
+Assessment Trigger
+
+Given a founder has a valid phone and email
+
+When analyst clicks “Founder Behaviour Test”
+
+Then system sends SMS/email with unique assessment link and shows pending status icon.
+
+Link Access
+
+Given founder receives SMS/email
+
+When founder clicks the link
+
+Then assessment page loads securely and displays instructions and questions.
+
+Mandatory Question Validation
+
+Given founder is completing the assessment
+
+When they attempt to submit incomplete mandatory questions
+
+Then system prevents submission and shows a warning.
+
+Progress Saving
+
+Given founder pauses assessment
+
+When they return to the link
+
+Then previously entered responses are restored and they can resume.
+
+Data Submission & Ingestion
+
+Given founder submits completed assessment
+
+When ingestion agent processes responses
+
+Then scores are calculated, structured data stored, and status icon updates to completed.
+
+Delayed Submission Handling
+
+Given founder submits after a delay
+
+When data is ingested
+
+Then system correctly updates status icon and stores data securely.
+
+Analyst View
+
+Given status icon shows completed
+
+When analyst clicks to view results
+
+Then detailed psychometric scores are displayed and downloadable.
+
+
+#### data ingestion agent
+--- System will show a loading splash icon and please wait, no need to stick around , till the time our ingestion agent has used rag/cag/mcp for storing the sources data 
+- once all sources data is  ingested , then only next button is active 
+Title: Data Ingestion Agent for Source Data
+
+As a VC analyst,
+I want the system to automatically ingest all uploaded or collected sources using a data ingestion agent while showing a loading splash,
+So that I can focus on other tasks and proceed to the next stage only after all source data is processed and stored reliably.
+
+User Journey with Embedded Rules & Flows
+Step 1: Trigger Data Ingestion
+
+User clicks “Next” button after adding and selecting at least one source.
+
+System Action:
+
+Activates Data Ingestion Agent to process all selected sources.
+
+Displays loading splash icon with message: “Please wait, data is being ingested…”
+
+Rules:
+
+Next stage button remains disabled until ingestion is complete.
+
+User should not interact with the source list during ingestion.
+
+Step 2: Ingestion Processing
+
+Agent Behavior:
+
+Uses RAG (Retrieval-Augmented Generation), CAG (Context-Aware Generation), MCP (Multi-Channel Processing) to ingest, normalize, and store data.
+
+Supports multiple source types: documents (PDF, DOCX, PPT), videos, audio, URLs, large text.
+
+Handles parallel ingestion for efficiency.
+
+Tracks progress internally (number of sources ingested / total sources).
+
+Rules:
+
+If any source ingestion fails → log failure with reason, continue with other sources.
+
+Data must be structured for later use (JSON, tabular).
+
+Confidence scoring applied per source for reliability tracking.
+
+Step 3: Completion
+
+Agent signals ingestion completion.
+
+System Actions:
+
+Hides loading splash.
+
+Updates Next button → active.
+
+Optionally shows success notification with summary: total sources ingested, failed sources.
+
+Rules:
+
+Analyst cannot proceed until at least one source is successfully ingested.
+
+Failed sources can be retried manually.
+
+Agent Description
+
+Name: Data Ingestion Agent
+
+Purpose:
+Automatically process and store all selected sources for a startup report, ensuring data is normalized, structured, and ready for downstream AI analysis.
+
+Capabilities:
+
+Parallel ingestion of multiple source types.
+
+Uses RAG, CAG, MCP for intelligent parsing and context-aware storage.
+
+Tracks ingestion progress and handles failures gracefully.
+
+Generates structured output suitable for AI analysis and reporting.
+
+Boundaries:
+
+Does not modify original source content.
+
+Does not trigger next stage until ingestion is complete.
+
+Handles only selected sources in current session.
+
+Acceptance Criteria (AC) in GWT
+
+Trigger Ingestion
+
+Given at least one source is added and selected
+
+When user clicks Next
+
+Then data ingestion agent starts processing and loading splash is shown, and Next button remains inactive.
+
+Parallel Processing
+
+Given multiple sources exist
+
+When ingestion starts
+
+Then agent processes sources in parallel and tracks progress internally.
+
+Failure Handling
+
+Given a source ingestion fails
+
+When ingestion continues
+
+Then failure reason is logged, other sources continue processing.
+
+Completion & Next Button Activation
+
+Given all sources are successfully ingested
+
+When ingestion completes
+
+Then system hides loading splash and activates the Next button.
+
+Status Feedback
+
+Given ingestion is in progress
+
+When user checks system
+
+Then loading splash and “Please wait” message are visible until completion.
+
+Data Structuring
+
+Given sources are ingested
+
+When ingestion finishes
+
+Then all data is stored in structured format (JSON, tabular) for downstream analysis.
+
+
+#### 4.5 once user is satisfied with the sources and has at least one source created and selected , he can click on next button, which opens the Investment Memo deck stage 
+####

@@ -1,0 +1,71 @@
+package com.aianalyst.agent;
+
+import com.aianalyst.entity.DataSourceEntity;
+import com.aianalyst.repository.DataSourceRepository;
+import com.aianalyst.service.AIAgentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
+
+@Component
+public class DataIngestionAgent extends BaseAIAgent {
+    
+    @Autowired
+    private DataSourceRepository dataSourceRepository;
+    
+    @Autowired
+    private AIAgentService aiAgentService;
+    
+    @Override
+    public CompletableFuture<Map<String, Object>> execute(Map<String, Object> input) {
+        logExecutionStart(input);
+        
+        if (!validateInput(input)) {
+            Map<String, Object> errorResult = new HashMap<>();
+            errorResult.put("status", "failed");
+            errorResult.put("error", "Invalid input data");
+            return CompletableFuture.completedFuture(errorResult);
+        }
+        
+        try {
+            // Prepare request for AI agent service
+            Map<String, Object> request = new HashMap<>();
+            request.put("sources", input.get("sources"));
+            request.put("user_id", input.get("user_id"));
+            request.put("session_id", input.get("session_id"));
+            
+            // Call AI agent service
+            return aiAgentService.processDataSources(request)
+                .thenApply(result -> {
+                    logExecutionComplete(result);
+                    return result;
+                })
+                .exceptionally(throwable -> {
+                    logExecutionError("Data ingestion failed", throwable);
+                    Map<String, Object> errorResult = new HashMap<>();
+                    errorResult.put("status", "failed");
+                    errorResult.put("error", throwable.getMessage());
+                    return errorResult;
+                });
+        } catch (Exception e) {
+            logExecutionError("Data ingestion failed", e);
+            Map<String, Object> errorResult = new HashMap<>();
+            errorResult.put("status", "failed");
+            errorResult.put("error", e.getMessage());
+            return CompletableFuture.completedFuture(errorResult);
+        }
+    }
+    
+    @Override
+    public String getAgentName() {
+        return "DataIngestionAgent";
+    }
+    
+    public Map<String, Object> getStatus(String sessionId) {
+        return aiAgentService.getDataIngestionStatus(sessionId);
+    }
+}

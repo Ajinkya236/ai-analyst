@@ -1,0 +1,1 @@
+Create comprehensive test cases of the feature for manual testing including postive scenarios, negative scenarios and edge cases, user acceptance testing, performance and security
