@@ -1,319 +1,201 @@
-# AI Analyst - AI Agents
+# 🚀 AI Analyst - Full-Stack Investment Memo Application
 
-This directory contains the Python-based AI agents that power the AI Analyst platform's Stage 0 functionality. The agents are built using LangGraph and provide intelligent data processing, research, and analysis capabilities.
+A comprehensive full-stack application for generating AI-powered investment memos with integrated frontend, backend, and AI agents.
+
+## ✨ Features
+
+### 🎯 Core Functionality
+- **Investment Memo Generation**: AI-powered generation of 25-section investment memos
+- **Data Ingestion**: Auto-processing of documents, URLs, and text inputs
+- **Deep Research**: Multi-layered web search and market analysis
+- **Founder Voice**: Automated founder interviews and transcript analysis
+- **Behavioral Assessment**: Psychometric testing and evaluation
+- **PPT Export**: Professional PowerPoint file generation
+
+### 🏗️ Architecture
+- **Frontend**: Angular 17 with TypeScript
+- **Backend**: Spring Boot with Java 17
+- **AI Agents**: Python with LangGraph integration
+- **Database**: H2/MySQL support
+- **API**: RESTful APIs with comprehensive documentation
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
-- Python 3.8+
-- OpenAI API Key
-- Node.js 18+ (for frontend integration)
-- Java 11+ (for backend integration)
-- Maven 3.6+ (for backend build)
+- Node.js 18+
+- Java 17+
+- Python 3.9+
+- Maven 3.6+
 
 ### Installation
 
-1. **Install Python dependencies:**
+1. **Clone the repository**
+   ```bash
+   git clone <your-repository-url>
+   cd ai-analyst
+   ```
+
+2. **Install Frontend Dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Install AI Agents Dependencies**
    ```bash
    cd ai_agents
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    pip install -r requirements.txt
+   cd ..
    ```
 
-2. **Set up environment variables:**
+4. **Start All Services**
    ```bash
-   cp .env.example .env
-   # Edit .env with your actual API keys
+   ./start_fullstack_app.sh
    ```
 
-3. **Start the AI Agents server:**
+### Manual Start
+
+1. **Start AI Agents API (Port 8000)**
    ```bash
-   python start_agents.py
+   cd ai_agents
+   source venv/bin/activate
+   python enhanced_api_server.py
    ```
 
-4. **Start the complete application:**
+2. **Start Angular Frontend (Port 4200)**
    ```bash
-   # From the project root
-   ./start_complete_app.sh
+   ng serve --host 0.0.0.0 --port 4200
    ```
 
-## 🤖 Available Agents
+3. **Start Spring Boot Backend (Port 8080)**
+   ```bash
+   cd backend
+   mvn spring-boot:run
+   ```
 
-### 1. Data Ingestion Agent
-**Purpose:** Processes and ingests various data sources using RAG/CAG/MCP techniques.
+## 🌐 Access URLs
 
-**Capabilities:**
-- Document processing (PDF, DOCX, PPTX, TXT)
-- Web content extraction
-- Text processing and chunking
-- Vector embedding generation
-- Data normalization and structuring
+- **Frontend**: http://localhost:4200
+- **AI Agents API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs
+- **Spring Boot Backend**: http://localhost:8080
 
-**API Endpoints:**
-- `POST /data-ingestion/process` - Process data sources
-- `GET /agents/data-ingestion/status/{session_id}` - Get processing status
+## 📊 AI Agents
 
-### 2. Deep Research Agent
-**Purpose:** Conducts comprehensive web research across multiple sources.
+### 🤖 Available Agents
+1. **PPT Generator Agent**: Creates comprehensive investment memos
+2. **Data Ingestion Agent**: Processes and stores data sources
+3. **Deep Research Agent**: Conducts market research and analysis
+4. **Founder Voice Agent**: Manages founder interviews
+5. **Behavioral Assessment Agent**: Performs psychometric evaluations
 
-**Capabilities:**
-- Multi-source web search
-- Data extraction and validation
-- Market analysis and benchmarking
-- SWOT analysis generation
-- Risk assessment
+### 🔧 API Endpoints
+```
+POST /ppt-generator/generate - Generate investment memo
+GET  /ppt-generator/memos/{report_id} - List generated memos
+DELETE /ppt-generator/memos/{memo_id} - Delete memo
+POST /data-ingestion/process - Process data sources
+POST /deep-research/execute - Execute deep research
+POST /founder-voice/interview - Conduct founder interview
+POST /behavioral-assessment/send - Send behavioral assessment
+```
 
-**API Endpoints:**
-- `POST /deep-research/execute` - Execute research
-- `GET /agents/deep-research/status/{session_id}` - Get research status
+## 🎯 Application Stages
 
-### 3. Founder Voice Agent
-**Purpose:** Conducts AI-powered voice interviews with startup founders.
+### Stage 0: Data Collection
+- Upload documents (PDF, DOCX, PPT)
+- Add URLs and YouTube links
+- Paste text content
+- Auto-ingestion into knowledge base
+- Real-time processing status
 
-**Capabilities:**
-- Voice call initiation (via Twilio)
-- Identity verification
-- Structured interview process
-- Real-time transcription
-- Sentiment analysis
-- Response analysis and scoring
+### Stage 1: Investment Memo Generation
+- AI-powered memo generation
+- 25 comprehensive sections
+- Confidence scoring
+- Risk analysis
+- PPT preview and download
 
-**API Endpoints:**
-- `POST /founder-voice/interview` - Conduct interview
-- `GET /agents/founder-voice/status/{session_id}` - Get interview status
+### Stage 2: Curated Investment Memo
+- Advanced analysis and curation
+- Professional formatting
+- Final review and approval
 
-### 4. Behavioral Assessment Agent
-**Purpose:** Sends and processes founder behavioral psychometric assessments.
+## 🛠️ Development
 
-**Capabilities:**
-- Assessment generation
-- SMS/Email delivery (via Twilio/SendGrid)
-- Response processing
-- Behavioral scoring
-- Profile generation
-- Investment recommendations
+### Project Structure
+```
+ai-analyst/
+├── src/                    # Angular frontend
+├── backend/               # Spring Boot backend
+├── ai_agents/            # Python AI agents
+├── docs/                 # Documentation
+├── cypress/              # E2E tests
+└── docker-compose.yml    # Docker configuration
+```
 
-**API Endpoints:**
-- `POST /behavioral-assessment/send` - Send assessment
-- `GET /agents/behavioral-assessment/status/{session_id}` - Get assessment status
+### Testing
+```bash
+# Frontend tests
+npm test
+
+# Backend tests
+cd backend && mvn test
+
+# AI Agents tests
+cd ai_agents && python -m pytest
+
+# E2E tests
+npx cypress run
+```
+
+## 🐳 Docker Support
+
+```bash
+# Build and run with Docker Compose
+docker-compose up --build
+
+# Production deployment
+docker-compose -f docker-compose.prod.yml up --build
+```
+
+## 📚 Documentation
+
+- [API Documentation](http://localhost:8000/docs)
+- [Frontend Components](docs/frontend/)
+- [Backend Services](docs/backend/)
+- [AI Agents](docs/ai-agents/)
 
 ## 🔧 Configuration
 
 ### Environment Variables
-
-Create a `.env` file in the `ai_agents` directory with the following variables:
-
-```env
-# OpenAI Configuration
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Database Configuration
-DATABASE_URL=postgresql://username:password@localhost:5432/ai_analyst
-
-# Redis Configuration
-REDIS_URL=redis://localhost:6379
-
-# Twilio Configuration (for voice calls and SMS)
-TWILIO_ACCOUNT_SID=your_twilio_account_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_PHONE_NUMBER=your_twilio_phone_number
-
-# SendGrid Configuration (for emails)
-SENDGRID_API_KEY=your_sendgrid_api_key
-
-# Backend API Configuration
-BACKEND_API_URL=http://localhost:8080/api
-
-# Agent Configuration
-AGENT_TIMEOUT=3600
-MAX_RETRY_ATTEMPTS=3
-CONFIDENCE_THRESHOLD=0.7
-
-# File Processing Configuration
-MAX_FILE_SIZE_MB=100
-SUPPORTED_FILE_TYPES=pdf,docx,pptx,txt,mp3,mp4,wav
-UPLOAD_DIRECTORY=./uploads
-
-# Search Configuration
-SEARCH_RESULTS_LIMIT=30
-SEARCH_TIMEOUT=300
-```
-
-## 📡 API Usage
-
-### Stage 0 Workflow
-
-Execute the complete Stage 0 workflow:
-
 ```bash
-curl -X POST http://localhost:8000/workflows/stage-0 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "session_id": "session_123",
-    "report_id": "report_456",
-    "user_id": "user_789",
-    "sources": [
-      {
-        "id": "source_1",
-        "name": "pitch_deck.pdf",
-        "type": "file",
-        "file_path": "/path/to/pitch_deck.pdf"
-      }
-    ],
-    "research_query": {
-      "startup_name": "Example Startup",
-      "sector": "Technology",
-      "geography": "United States",
-      "stage": "Series A",
-      "custom_questions": ["What is the competitive landscape?"]
-    },
-    "founder": {
-      "name": "John Doe",
-      "phone_number": "+1234567890",
-      "email": "john@example.com"
-    }
-  }'
+# Copy example environment file
+cp env.example .env
+
+# Edit configuration
+nano .env
 ```
 
-### Individual Agent Execution
-
-Execute a specific agent:
-
-```bash
-curl -X POST http://localhost:8000/agents/data-ingestion/execute \
-  -H "Content-Type: application/json" \
-  -d '{
-    "session_id": "session_123",
-    "report_id": "report_456",
-    "user_id": "user_789",
-    "input_data": {
-      "sources": [...]
-    }
-  }'
-```
-
-## 🏗️ Architecture
-
-### LangGraph Workflows
-
-Each agent uses LangGraph to create structured workflows:
-
-1. **Data Ingestion Workflow:**
-   - Validate sources → Process documents → Process links → Process text → Generate embeddings → Store data → Generate summary
-
-2. **Deep Research Workflow:**
-   - Analyze query → Generate search queries → Execute searches → Extract data → Validate data → Enrich data → Generate report
-
-3. **Founder Voice Workflow:**
-   - Initiate call → Verify identity → Conduct interview → Analyze responses → Generate report
-
-4. **Behavioral Assessment Workflow:**
-   - Validate founder → Generate assessment → Send assessment → Monitor completion → Process responses → Calculate scores → Generate report
-
-### Integration Points
-
-- **Frontend Integration:** Angular components call agent APIs via HTTP
-- **Backend Integration:** Java backend can trigger agents via REST API
-- **Database Integration:** Agents store results in PostgreSQL
-- **Vector Store:** ChromaDB for document embeddings
-- **External Services:** Twilio (voice/SMS), SendGrid (email), OpenAI (AI processing)
-
-## 🔍 Monitoring and Logging
-
-### Health Check
-
-Check agent health:
-
-```bash
-curl http://localhost:8000/health
-```
-
-### Agent Status
-
-Get status of all agents:
-
-```bash
-curl http://localhost:8000/agents
-```
-
-### Logs
-
-Logs are written to:
-- Console output
-- `ai_agents.log` file
-- Individual agent logs in `logs/` directory
-
-## 🧪 Testing
-
-### Unit Tests
-
-Run individual agent tests:
-
-```bash
-python -m pytest tests/test_data_ingestion_agent.py
-python -m pytest tests/test_deep_research_agent.py
-python -m pytest tests/test_founder_voice_agent.py
-python -m pytest tests/test_behavioral_assessment_agent.py
-```
-
-### Integration Tests
-
-Test complete workflows:
-
-```bash
-python -m pytest tests/test_workflows.py
-```
+### AI Agents Configuration
+- OpenAI API key for LLM integration
+- Twilio credentials for SMS/voice
+- Database connection settings
+- Vector store configuration
 
 ## 🚀 Deployment
 
-### Docker Deployment
+### Production Setup
+1. Configure environment variables
+2. Set up database (MySQL/PostgreSQL)
+3. Configure AI service credentials
+4. Deploy using Docker or cloud services
 
-Build and run with Docker:
-
-```bash
-# Build image
-docker build -t ai-analyst-agents .
-
-# Run container
-docker run -p 8000:8000 --env-file .env ai-analyst-agents
-```
-
-### Production Considerations
-
-1. **Environment Variables:** Use secure secret management
-2. **Database:** Use production PostgreSQL instance
-3. **Redis:** Use production Redis instance
-4. **Monitoring:** Implement proper logging and monitoring
-5. **Scaling:** Use load balancers for multiple agent instances
-6. **Security:** Implement proper authentication and authorization
-
-## 📚 Development
-
-### Adding New Agents
-
-1. Create agent class extending `BaseAIAgent`
-2. Implement `_build_graph()` method with LangGraph workflow
-3. Implement `_execute()` method with main logic
-4. Add agent to `AgentOrchestrator`
-5. Add API endpoints in `api_server.py`
-6. Update frontend integration
-
-### Code Structure
-
-```
-ai_agents/
-├── base_agent.py              # Base agent class
-├── data_ingestion_agent.py    # Data ingestion agent
-├── deep_research_agent.py     # Deep research agent
-├── founder_voice_agent.py     # Founder voice agent
-├── behavioral_assessment_agent.py # Behavioral assessment agent
-├── agent_orchestrator.py      # Agent orchestration
-├── api_server.py              # FastAPI server
-├── config.py                  # Configuration
-├── start_agents.py            # Startup script
-├── requirements.txt           # Python dependencies
-└── README.md                  # This file
-```
+### Cloud Deployment
+- **Frontend**: Vercel, Netlify, or AWS S3
+- **Backend**: AWS ECS, Google Cloud Run, or Azure Container Instances
+- **AI Agents**: AWS Lambda, Google Cloud Functions, or Azure Functions
 
 ## 🤝 Contributing
 
@@ -325,15 +207,24 @@ ai_agents/
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
 For support and questions:
 - Create an issue in the repository
-- Contact the development team
 - Check the documentation
+- Review the API documentation at http://localhost:8000/docs
+
+## 🎉 Acknowledgments
+
+- Built with Angular, Spring Boot, and Python
+- AI powered by LangGraph and OpenAI
+- UI components and styling
+- Comprehensive testing framework
 
 ---
 
-**Note:** This is a production-ready implementation of AI agents for the AI Analyst platform. The agents are designed to be scalable, maintainable, and easily extensible for future requirements.
+**Status**: ✅ **FULLY FUNCTIONAL** - All services running and tested
+**Version**: 2.2.0
+**Last Updated**: 2025-09-21
